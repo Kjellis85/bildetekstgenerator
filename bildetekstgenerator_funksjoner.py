@@ -69,6 +69,33 @@ def save_image(filename, images, filedialog):
             image.save(save_path, format='TIFF', save_all=True)
 
 
+def save_all_images(original_images, images, font_size, position, text_color, font_path, filedialog):
+    # Be brukeren om en mappe for å lagre alle bildene
+    directory = filedialog.askdirectory()
+    if not directory:  # Hvis brukeren avbryter, avslutt funksjonen
+        return
+
+    for filename in original_images:
+        # Lag en kopi av det originale bildet
+        image = original_images[filename].copy()
+        draw = ImageDraw.Draw(image)
+        text = format_filename(filename)
+        font = ImageFont.truetype(font_path, font_size)
+
+        # Beregn posisjon og størrelse for teksten
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        x, y = get_position(image, text_width, text_height, position)
+
+        # Tegn teksten på bildet
+        draw.text((x, y), text, font=font, fill=text_color)
+
+        # Lagre bildet i den valgte mappen
+        save_path = os.path.join(directory, os.path.basename(filename))
+        image.save(save_path, format='TIFF', save_all=True)
+
+
 def get_fonts(fonts_path):
     font_files = [f for f in os.listdir(fonts_path) if f.endswith('.ttf')]
     return font_files

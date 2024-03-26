@@ -8,7 +8,7 @@ from bildetekstgenerator_funksjoner import (
     load_image,
     add_text_to_image,
     save_image,
-    get_fonts,
+    save_all_images,
     scale_image_for_preview
 )
 
@@ -83,6 +83,11 @@ def setup_gui(root):
     # Frame for knapper og innstillinger
     button_frame = Frame(control_frame)
     button_frame.pack(fill=X)
+
+    save_all_button = Button(button_frame, text="Lagre alle bilder", command=lambda: save_all_images(
+        original_images, images, int(font_size_var.get()), position.get(), text_color_var.get(),
+        "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf", filedialog))
+    save_all_button.pack(side=LEFT)
 
     font_size_label = Label(button_frame, text="Fontstørrelse:")
     font_size_label.pack(side=LEFT)
