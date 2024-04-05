@@ -1,8 +1,10 @@
 # main.py
 
 import os
+import tkinter.ttk as ttk
 from tkinter import *
 from tkinter import filedialog, messagebox
+from ttkthemes import ThemedTk
 from PIL import ImageTk
 from bildetekstgenerator_funksjoner import (
     load_image,
@@ -99,76 +101,120 @@ def setup_gui(root):
     text_color_var = StringVar(value='white')  # Standardverdien er hvit
     scale_positions = ['Venstre', 'Midtstilt', 'Høyre']
     scale_position_var = StringVar(value=scale_positions[1])  # Standardverdien er 'Midtstilt'
+    scrollbar = ttk.Scrollbar(root)
+
+    root.geometry('800x600')
 
     # Hovedframe for bilde og kontroller
-    main_frame = Frame(root)
-    main_frame.pack(fill=BOTH, expand=True, pady=20)
+    main_frame = ttk.Frame(root)
+    main_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
 
     # Frame for bildet
-    image_frame = Frame(main_frame)
+    image_frame = ttk.Frame(main_frame)
     image_frame.pack(side=LEFT, fill=BOTH, expand=True)
 
     image_label = Label(image_frame)
-    image_label.pack()
+    image_label.pack(fill=BOTH, expand=True)
 
     # Frame for listen med bilder og knapper
-    control_frame = Frame(main_frame)
+    control_frame = ttk.Frame(main_frame)
     control_frame.pack(side=LEFT, fill=Y)
 
     # Frame for listen med bilder
-    list_frame = Frame(control_frame)
+    list_frame = ttk.Frame(control_frame)
     list_frame.pack(fill=BOTH, expand=True)
 
-    image_list_label = Label(list_frame, text="Lastede bilder:")
+    image_list_label = ttk.Label(list_frame, text="Lastede bilder:")
     image_list_label.pack()
-    image_list = Listbox(list_frame)
-    image_list.pack(fill=BOTH, expand=True)
-    image_list.bind('<<ListboxSelect>>', on_image_select)
+    image_list = ttk.Treeview(list_frame, yscrollcommand=scrollbar.set, show="tree")
+    scrollbar.configure(command=image_list.yview)
+
+    scrollbar.pack(side=RIGHT, fill=Y)
+    image_list.pack(side=LEFT, fill=BOTH, expand=True)
+    image_list.bind('<ButtonRelease-1>', on_image_select)
 
     # Frame for knapper og innstillinger
-    button_frame = Frame(control_frame)
+    button_frame = ttk.Frame(control_frame)
     button_frame.pack(fill=X)
 
-    process_save_button = Button(button_frame, text="Behandle og lagre bilder", command=process_and_save_images)
-    process_save_button.pack(side=LEFT)
+    # Knapper fordelt på to kolonner
+    button_columns = ttk.Frame(button_frame)
+    button_columns.pack()
 
-    font_size_label = Label(button_frame, text="Fontstørrelse:")
-    font_size_label.pack(side=LEFT)
-    font_size_menu = OptionMenu(button_frame, font_size_var, *map(str, font_sizes))
-    font_size_menu.pack(side=LEFT)
+    # Konfigurer grid for å gi lik høyde til rader
+    button_columns.grid_rowconfigure(0, weight=1)
+    button_columns.grid_rowconfigure(1, weight=1)
+    button_columns.grid_rowconfigure(2, weight=1)
+    button_columns.grid_rowconfigure(3, weight=1)
+    button_columns.grid_rowconfigure(4, weight=1)
+    button_columns.grid_rowconfigure(5, weight=1)
 
-    text_color_label = Label(button_frame, text="Tekstfarge:")
-    text_color_label.pack(side=LEFT)
-    text_color_menu = OptionMenu(button_frame, text_color_var, 'white', 'black')
-    text_color_menu.pack(side=LEFT)
+    # Konfigurer grid for å gi lik bredde til kolonner
+    button_columns.grid_columnconfigure(0, weight=1)
+    button_columns.grid_columnconfigure(1, weight=1)
 
-    position_label = Label(button_frame, text="Tekstposisjon:")
-    position_label.pack(side=LEFT)
-    position_select = OptionMenu(button_frame, text_position_var, *text_positions)
-    position_select.pack(side=LEFT)
+    # Første kolonne med knapper og labels
+    button_column_1 = ttk.Frame(button_columns)
+    button_column_1.grid(row=0, column=0, padx=(10, 5), pady=(5, 5), sticky="nsew")
 
-    text_button = Button(button_frame, text="Legg til tekst",
-                         command=lambda: add_text_to_image(image_label.filename, original_images, images,
-                                                           int(font_size_var.get()),
-                                                           text_position_var.get(), text_color_var.get(), update_preview,
-                                                           "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf"))
-    text_button.pack(side=LEFT)
+    # Andre kolonne med knapper og OptionMenus
+    button_column_2 = ttk.Frame(button_columns)
+    button_column_2.grid(row=0, column=1, padx=(10, 5), pady=(5, 5), sticky="nsew")
 
-    save_button = Button(button_frame, text="Lagre bilde", command=lambda: save_image(image_label.filename, images, filedialog))
-    save_button.pack(side=LEFT)
+    # Knapper og labels i kolonne 1, høyrejustert
+    font_size_label = ttk.Label(button_column_1, text="Fontstørrelse:", anchor="se")
+    font_size_label.grid(row=2, column=0, sticky="e", pady=11)
 
-    browse_button = Button(button_frame, text="Last inn bilder", command=browse_files)
-    browse_button.pack(side=LEFT)
+    text_color_label = ttk.Label(button_column_1, text="Tekstfarge:", anchor="se")
+    text_color_label.grid(row=3, column=0, sticky="e", pady=11)
 
-    scale_position_label = Label(button_frame, text="Målestokkposisjon:")
-    scale_position_label.pack(side=LEFT)
-    scale_position_menu = OptionMenu(button_frame, scale_position_var, *scale_positions)
-    scale_position_menu.pack(side=LEFT)
+    position_label = ttk.Label(button_column_1, text="Tekstposisjon:", anchor="se")
+    position_label.grid(row=4, column=0, sticky="e", pady=11)
+
+    scale_position_label = ttk.Label(button_column_1, text="Målestokkposisjon:", anchor="se")
+    scale_position_label.grid(row=5, column=0, sticky="e", pady=11)
+
+    # OptionMenus i kolonne 2
+    font_size_menu = ttk.OptionMenu(button_column_2, font_size_var, *map(str, font_sizes))
+    font_size_menu.grid(row=2, column=1, sticky="ew")
+
+    text_color_menu = ttk.OptionMenu(button_column_2, text_color_var, 'white', 'black')
+    text_color_menu.grid(row=3, column=1, sticky="ew")
+
+    position_select = ttk.OptionMenu(button_column_2, text_position_var, *text_positions)
+    position_select.grid(row=4, column=1, sticky="ew")
+
+    scale_position_menu = ttk.OptionMenu(button_column_2, scale_position_var, *scale_positions)
+    scale_position_menu.grid(row=5, column=1, sticky="ew")
+
+    # Knapper i kolonne 1 og 2, rad 1 og 2
+    process_save_button = ttk.Button(button_column_1, text="Behandle og lagre bilder", command=process_and_save_images)
+    process_save_button.grid(row=0, column=0, sticky="ew")
+
+    text_button = ttk.Button(button_column_1,
+                         text="Legg til tekst",
+                         command=lambda:
+                         add_text_to_image(image_label.filename,
+                                           original_images, images,
+                                           int(font_size_var.get()),
+                                           text_position_var.get(),
+                                           text_color_var.get(),
+                                           update_preview,
+                                           "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf"))
+    text_button.grid(row=1, column=0, sticky="ew")
+
+    browse_button = ttk.Button(button_column_2, text="Last inn bilder", command=browse_files)
+    browse_button.grid(row=0, column=1, sticky="ew")
+
+    save_button = ttk.Button(button_column_2,
+                         text="Lagre bilde",
+                         command=lambda: save_image(image_label.filename, images, filedialog))
+    save_button.grid(row=1, column=1, sticky="ew")
 
 
 def main():
     global root, images
-    root = Tk()
+    root = ThemedTk(theme='adapta')
     root.title("Bilde Tekstlegger")
     images = {}
     setup_gui(root)
