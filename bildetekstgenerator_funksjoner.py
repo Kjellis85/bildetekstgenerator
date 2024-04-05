@@ -6,6 +6,7 @@ import cv2
 import os
 import numpy as np
 
+color_mapping= {'Hvit': 'white', 'Sort': 'black'}
 
 def load_image(filename, images, original_images, update_preview, update_image_list):
     image = Image.open(filename)
@@ -15,7 +16,9 @@ def load_image(filename, images, original_images, update_preview, update_image_l
     update_image_list()
 
 
-def add_text_to_image(filename, original_images, images, font_size, position, text_color, update_preview, font_path):
+def add_text_to_image(filename, original_images, images, font_size, position, text_color_name, update_preview, font_path):
+    text_color = color_mapping[text_color_name]
+
     if filename:
         # Bruk en kopi av det originale bildet uten tidligere påført tekst
         image = original_images[filename].copy()

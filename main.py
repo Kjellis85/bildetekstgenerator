@@ -1,17 +1,17 @@
 # main.py
 
 import os
-import tkinter.ttk as ttk
 from tkinter import *
-from tkinter import filedialog, messagebox
-from ttkthemes import ThemedTk
+from tkinter import filedialog, messagebox, ttk
 from PIL import ImageTk
+from ttkthemes import ThemedTk
 from bildetekstgenerator_funksjoner import (
     load_image,
     add_text_to_image,
     save_image,
     scale_image_for_preview,
-    process_image
+    process_image,
+    color_mapping  # Antar at color_mapping er definert i bildetekstgenerator_funksjoner.py
 )
 
 
@@ -44,9 +44,10 @@ def browse_files():
 
 
 def update_preview(image, filename):
-    scale_thickness = 4  # Du kan endre dette til å være en brukerdefinert verdi om nødvendig
+    scale_thickness = 4
     font_size = int(font_size_var.get())
-    text_color = text_color_var.get()
+    text_color_name = text_color_var.get()
+    text_color = color_mapping[text_color_name]  # Konverter til teknisk farge
     scale_position = scale_position_var.get()
     text_position = text_position_var.get()
     font_path = "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf"
@@ -98,10 +99,12 @@ def setup_gui(root):
     font_size_var = StringVar(value='78')  # Sett standardverdien til '78' som en streng
     text_positions = ['Venstre hjørne, oppe', 'Høyre hjørne, oppe', 'Venstre hjørne, nede', 'Høyre hjørne, nede']
     text_position_var = StringVar(value=text_positions[0])  # Standardverdien er 'Venstre hjørne, oppe'
-    text_color_var = StringVar(value='white')  # Standardverdien er hvit
     scale_positions = ['Venstre', 'Midtstilt', 'Høyre']
     scale_position_var = StringVar(value=scale_positions[1])  # Standardverdien er 'Midtstilt'
     scrollbar = ttk.Scrollbar(root)
+    # Ordbok for å mappe brukervennlige fargenavn til tekniske fargenavn
+    color_mapping = {'Hvit': 'white', 'Sort': 'black'}
+    text_color_var = StringVar(value='Hvit')  # Standardverdien er 'Hvit'
 
     root.geometry('800x600')
 
@@ -178,7 +181,8 @@ def setup_gui(root):
     font_size_menu = ttk.OptionMenu(button_column_2, font_size_var, *map(str, font_sizes))
     font_size_menu.grid(row=2, column=1, sticky="ew")
 
-    text_color_menu = ttk.OptionMenu(button_column_2, text_color_var, 'white', 'black')
+    # Oppdater OptionMenu for tekstfarge til å bruke brukervennlige navn
+    text_color_menu = ttk.OptionMenu(button_column_2, text_color_var, *color_mapping.keys())
     text_color_menu.grid(row=3, column=1, sticky="ew")
 
     position_select = ttk.OptionMenu(button_column_2, text_position_var, *text_positions)
@@ -192,15 +196,15 @@ def setup_gui(root):
     process_save_button.grid(row=0, column=0, sticky="ew")
 
     text_button = ttk.Button(button_column_1,
-                         text="Legg til tekst",
-                         command=lambda:
-                         add_text_to_image(image_label.filename,
-                                           original_images, images,
-                                           int(font_size_var.get()),
-                                           text_position_var.get(),
-                                           text_color_var.get(),
-                                           update_preview,
-                                           "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf"))
+                             text="Legg til tekst",
+                             command=lambda:
+                             add_text_to_image(image_label.filename,
+                                               original_images, images,
+                                               int(font_size_var.get()),
+                                               text_position_var.get(),
+                                               color_mapping[text_color_var.get()],  # Konverter til teknisk farge
+                                               update_preview,
+                                               "D:/Python prosjekter/bildetekstgenerator/Fonts/OpenSans_Light.ttf"))
     text_button.grid(row=1, column=0, sticky="ew")
 
     browse_button = ttk.Button(button_column_2, text="Last inn bilder", command=browse_files)
